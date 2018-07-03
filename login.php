@@ -1,57 +1,41 @@
 <?php
 session_start();
-?>
+require_once('includes/connection.php'); 
+require_once('includes/header.php');
 
-<?php require_once("includes/connection.php"); ?>
-<?php include("includes/header.php"); ?>
-
-<?php
-
-if(isset($_SESSION["session_username"])){
+if(isset($_SESSION['session_username'])){
  //echo "Session is set"; // for testing purposes
-header("Location: intropage.php");
+header('Location: intropage.php');
 }
 
-if(isset($_POST["login"])){
-
-if(!empty($_POST['username']) && !empty($_POST['password'])) {
-    $username=$_POST['username'];
-    $password=$_POST['password'];
-
-    $query =$db->query("SELECT * FROM user WHERE username='".$username."' AND password='".$password."'");
-
-    $numrows=$query->fetch();
-
-    if($numrows!=0)
-
-    {
-
-    if($username == $numrows['username'] && $password == $numrows['password'])
-
-    {
-
-
-    $_SESSION['session_username']=$username;
-
-    /* Redirect browser */
-    header("Location: intropage.php");
-    }
+if(isset($_POST['login'])){
+    if(!empty($_POST['username']) && !empty($_POST['password'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $query = $db->query("SELECT * FROM user WHERE login='".$username."' AND password='".$password."'");
+        $numrows = $query->fetch();
+        if($numrows != 0) {
+            if($username == $numrows['login'] && $password == $numrows['password']){
+                $_SESSION['session_username'] = $username;
+                $_SESSION['id'] = $numrows['id'];
+                /* Redirect browser */
+                header('Location: intropage.php');
+            }
+        } else {
+            $message = "Неправильное имя пользователя или пароль!";
+        }
     } else {
-
- $message =  "Неправильное имя пользователя или пароль!";
+        $message = "Все поля обязательны для заполнения!";
     }
-
-} else {
-    $message = "Все поля обязательны для заполнения!";
-}
 }
 ?>
 
+<?php if (!empty($message)) {echo "<p class=\"error\">" . "MESSAGE: ". $message . "</p>";} ?>
 
-    <div class="container mlogin">
-            <div id="login">
+<div class="container mlogin">
+    <div id="login">
     <h1>ВОЙТИ</h1>
-<form name="loginform" id="loginform" action="" method="POST">
+    <form name="loginform" id="loginform" action="" method="POST">
     <p>
         <label for="user_login">Имя пользователя<br />
         <input type="text" name="username" id="username" class="input" value="" size="20" /></label>
@@ -64,12 +48,7 @@ if(!empty($_POST['username']) && !empty($_POST['password'])) {
         <input type="submit" name="login" class="button" value="Войти" />
     </p>
         <p class="regtext">Не зарегистрирован? <a href="register.php" >Зарегистрируйся</a>!</p>
-</form>
-
+    </form>
     </div>
-
-    </div>
-	
-
-	<?php if (!empty($message)) {echo "<p class=\"error\">" . "MESSAGE: ". $message . "</p>";} ?>
+</div>
 	
