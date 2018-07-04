@@ -123,27 +123,43 @@ $sth = $db->prepare("SELECT * FROM task WHERE user_id = ?");
                 <td><span style="color: goldenrod;"><?php echo $rows ['is_done'] ?></span></td>
                 <td><a href="?id=<?= $rows ['id'];?>&action=done">Выполнить</a>
                     <a href="?id=<?= $rows ['id'];?>&action=delete">Удалить</a></td>
-                <td><?php if(isset($_POST['assigned_user'])) {
+                <td>
+                    <?php $auth = $db->prepare("SELECT user.login FROM `user` JOIN task ON user.id = task.user_id");
+                          $auth->execute();
+                          $author = $auth->fetch();
+                          echo $author['login'];?>
+                    
+                    <!--?php if(isset($_POST['assigned_user'])) {
                             echo $user = $_SESSION['session_username'];
                           } else {
                           echo $user = $_SESSION['session_username'];
-                          } ?>
+                          } ?-->
                 </td>
-                <td><?php if(isset($_POST['assigned_user'])) {
-                            echo $assigned_user = $_POST['hero'];
+                <td><?php if(isset($_POST['assigned_user_id'])) {
+                            $sth = $db->prepare("UPDATE task SET user_id = assigned_user_id  WHERE id = ? AND user_id = ?");
+                            $sth->execute(array($id, $user_id)); 
+                            $assign = $db->prepare("SELECT user.login FROM `user` JOIN task ON user.id = task.assigned_user_id");
+                            $assign->execute();
+                            $assigned = $assign->fetch();
+                            echo $assigned['login'];
+                         
+                          ?>
+
+
+                        <?php //echo $assigned_user = $_POST['hero'];
                           } else {
-                            echo $assigned_user = $_SESSION['session_username'];
+                            echo $author['login'];
                           }  ?></td>
                 <td>
                     <form action="" method="post">
-                        <p><select name="hero" size="3" multiple>
+                        <p><select name="assigned_user_id" size="5" multiple>
                                 <option disabled>Выберите пользователя</option>
                                 <?php
-                                $usernames = $db -> query("SELECT login FROM user");
-                                
+                                $usernames = $db -> query("SELECT id, login FROM user");
+                                //$usernames = $userlist->fetch();
                                 foreach ($usernames as $value) {
-                                    foreach($value as $assigned_user) {
-                                        echo '<option value="'.$assigned_user.'">'.$assigned_user.'</option>';
+                                    foreach($value as $assigned_user['login']) {
+                                        echo '<option value="'.$assigned_user['id'].'">'.$assigned_user['login'].'</option>';
                                     }
                                 
                                 }?>
